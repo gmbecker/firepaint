@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <script type="text/javascript" src="/home/gmbecker/gabe/checkedout/GabeResearch/Packages/RFirefox/inst/javascript/Rscripthandler.js"> </script>
+    <script type="text/R">
+      library(RFirefox)
+      #library(SpiderMonkey)
+      library(firepaint)
+      
+      canvEl = getElementById(ScriptCon, "canv")
+      ctx = call_JS_Method(ScriptCon, canvEl, "getContext", list("2d"))
+      print(ctx)
+      painter = fPainter$new(canvas = canvEl, ctx = ctx)
+      trace(call_JS_Method)
+      painter$drawLine(c(10, 10, 100), c(10, 100, 100))
+      untrace(call_JS_Method)
+      x = runif(1000, 1, 10) * 10
+      y = runif(1000, 1, 10) * 10
+      painter$drawPoint(x,y)
+      
+
+
+      
+
+      </script>
+  </head>
+  <body>
+    <canvas id="canv"></canvas>
+  </body>
+</html>
+
+

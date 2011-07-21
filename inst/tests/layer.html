@@ -14,16 +14,17 @@
       pfun = function(p)
       {
         #very primitive scatterplot
-        p$drawLine(c(10, 10, 200), c(10, 200, 200))
-        x = runif(100, 10, 200)
-        y = log(x)
-        print(head(x))
+        p$drawLine(c(10, 10, 100), c(10, 100, 100))
+        x = runif(1000, 10, 100)
+        y = runif(1000, 10, 100)
+        
       
         p$drawPoint(x,y)
       }
         
       
-      l = fLayer$new( canvas = canvEl, paint = pfun)
+      l = fLayer$new( canvas = canvEl)
+      l$paint = pfun
       l$paint(painter)
       
 

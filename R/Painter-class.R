@@ -33,24 +33,25 @@ fPainter = setRefClass("firePainter",
               },
               ##Not sure what to do about the point method. Very small filled circle or rectangle?
               ##currently they are non-filled circles of radius 5 pixels
-              drawPoint = function(x,y, stroke = NULL) {
-                print("in drawPoint function")
-                if(!is.null(stroke))
-                  stroke = col2rgb(stroke)
-                if (!length(stroke))
-                  {
-                    change = rep(FALSE, times= length(x))
-                    call_JS_Method(ScriptCon, .self$ctx, "beginPath", list(), addRoot = FALSE)
-                  } else {
-                    
-                    if (length(stroke) == 1)
-                      change = c(TRUE,rep(FALSE, times = length(x) - 1))
-                    else
-                      {
-                        stroke2 = stroke[-1]
-                        change = c(TRUE, stroke == stroke2)
-                      }
-                  }
+              drawPoint = cmpfun(
+                function(x,y, stroke = NULL) {
+                  print("in drawPoint function")
+                  if(!is.null(stroke))
+                    stroke = col2rgb(stroke)
+                  if (!length(stroke))
+                    {
+                      change = rep(FALSE, times= length(x))
+                      call_JS_Method(ScriptCon, .self$ctx, "beginPath", list(), addRoot = FALSE)
+                    } else {
+                      
+                      if (length(stroke) == 1)
+                        change = c(TRUE,rep(FALSE, times = length(x) - 1))
+                      else
+                        {
+                          stroke2 = stroke[-1]
+                          change = c(TRUE, stroke == stroke2)
+                        }
+                    }
                 mapply(function(x, y, strokeChange, stroke) {
                   if (strokeChange)
                     {
@@ -61,10 +62,10 @@ fPainter = setRefClass("firePainter",
                     }
                   call_JS_Method(ScriptCon, .self$ctx, "rect", list(x, y, 1, 1), addRoot = FALSE)
                 }, x, y, change, stroke)
-                call_JS_Method(ScriptCon, .self$ctx, "fill", list(), addRoot = FALSE)
-                TRUE
-
-              },
+                  call_JS_Method(ScriptCon, .self$ctx, "fill", list(), addRoot = FALSE)
+                  TRUE
+                  
+                }),
               drawRect = function(xleft, ybottom, xright, ytop, stroke = NULL, fill = NULL)
               {
                 call_JS_Method(ScriptCon, .self$ctx, "beginPath", list(), addRoot = FALSE)
@@ -85,7 +86,7 @@ fPainter = setRefClass("firePainter",
             contains = "Painter")
               
 #experiment for speed. This is much faster than naively looping in R 
-fPainter2 = setRefClass("firePainter2",
+ fPainter2 = setRefClass("firePainter2",
   fields = list(canvas = "character", ctx = "character"), 
   methods = list(
     drawLine = function(x, y, stroke = NULL) {
@@ -133,4 +134,65 @@ fPainter2 = setRefClass("firePainter2",
       TRUE                  
     }),
   contains = "Painter")
+                       
+fPainter3 = setRefClass("firePainter3",
+  fields = list(canvas = "jsvalRef", ctx = "jsvalRef"), 
+  methods = list(
+
+    drawPoint = function(x,y, stroke)
+    {
+
+      if(!is.null(stroke))
+        stroke = col2rgb(stroke)
+      if (!length(stroke))
+        {
+          change = rep(FALSE, times= length(x))
+          call_JS_Method(ScriptCon, .self$ctx, "beginPath", list(), addRoot = FALSE)
+        } else {
+          
+          if (length(stroke) == 1)
+            change = c(TRUE,rep(FALSE, times = length(x) - 1))
+          else
+            {
+              stroke2 = stroke[-1]
+              change = c(TRUE, stroke == stroke2)
+            }
+        }
+      if(is.null(stroke))
+        hexstroke = NULL
+      else
+       
+      hexstroke =  paste("#", paste(format(as.hexmode(stroke), width = 2), collapse = ""), sep = "")
+      .Call("R_DrawPoints", as.numeric(x), as.numeric(y), hexstroke, ScriptCon, change, .self$ctx)
+      TRUE
+    },
+    drawCircle = function(x,y,r, stroke)
+    {
+
+      if(!is.null(stroke))
+        {
+          stroke = col2rgb(stroke)
+
+          if (length(stroke) == 1)
+            change = c(TRUE,rep(FALSE, times = length(x) - 1))
+          else
+            {
+              stroke2 = stroke[-1]
+              change = c(TRUE, stroke == stroke2)
+            }
+          
+          hexstroke =  paste("#", paste(format(as.hexmode(stroke), width = 2), collapse = ""), sep = "")
+        } else {
+        
+          change = rep(FALSE, times= length(x))
+          call_JS_Method(ScriptCon, .self$ctx, "beginPath", list(), addRoot = FALSE)
+          hexstroke = NULL
+        }
+      if (length(r) != length(x))
+        r = rep(r, length.out = length(x))
+              
+      .Call("R_DrawCircles", as.numeric(x), as.numeric(y),as.numeric(r), hexstroke, ScriptCon, change, .self$ctx)
+      TRUE
+    }),
+  contains = "firePainter")
                        

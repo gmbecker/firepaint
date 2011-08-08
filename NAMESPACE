@@ -1,2 +1,3 @@
+useDynLib(firepaint)
 import(anypaint)
 exportPattern(".*")

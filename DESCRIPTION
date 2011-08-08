@@ -6,7 +6,7 @@ Date: 2011-07-12
 Author: Gabriel Becker
 Maintainer: Gabriel Becker <gmbecker@ucdavis.edu>
 Description: Implementation of the anypaint interface for drawing into a javascript canvas using RFirefox
-Depends: methods, RFirefox
+Depends: methods, RFirefox, compiler
 Imports: anypaint
 License: GPL
 LazyLoad: yes

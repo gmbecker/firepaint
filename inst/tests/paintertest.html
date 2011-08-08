@@ -1,6 +1,7 @@
 <html>
   <head>
-    <script type="text/javascript" src="/home/gmbecker/gabe/checkedout/GabeResearch/Packages/RFirefox/inst/javascript/Rscripthandler.js"> </script>
+    <script type="text/javascript" src="/home/gmbecker/gabe/checkedout/RFirefox/inst/javascript/Rscripthandler.js"> </script>
+<script type="text/javascript" src="/home/gmbecker/gabe/checkedout/RFirefox/inst/javascript/Rhelpers.js"> </script>
     <script type="text/R">
       library(RFirefox)
       #library(SpiderMonkey)
@@ -12,10 +13,16 @@
       painter = fPainter$new(canvas = canvEl, ctx = ctx)
       print(painter)
       painter$drawSegment(c(1, 2, 1), c(100, 200, 100), c(150, 200, 300), c(150, 250, 300))
+      
+      doPaint = function(dummy = 1)
+{
+      print("in doPaint")
       x = runif(1000, 0, 30) * 10
       y = runif(1000, 0, 30) * 10
       painter$drawPoint(x,y)
-      
+ }     
+
+      doPaint()
 
 
       
@@ -24,6 +31,7 @@
   </head>
   <body>
     <canvas id="canv"></canvas>
+    <button type="button" onclick = "jsREventHandler('doPaint');">Redraw Points </button>
   </body>
 </html>
 

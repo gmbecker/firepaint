@@ -1,0 +1,4 @@
+XUL_SDK=/home/gmbecker/local/xulrunner5.0-sdk
+
+PKG_LIBS=-L$(XUL_SDK)/lib -lxul -lmozalloc
+PKG_CPPFLAGS=-I$(XUL_SDK)/include

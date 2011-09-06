@@ -1,27 +1,44 @@
 <html>
   <head>
-    <script type="text/javascript" src="/home/gmbecker/gabe/checkedout/GabeResearch/Packages/RFirefox/inst/javascript/Rscripthandler.js"> </script>
+    <script type="text/javascript" src="/home/gmbecker/gabe/checkedout/RFirefox/inst/javascript/Rscripthandler.js"> </script>
+ 
+<script type="text/javascript" src="/home/gmbecker/gabe/checkedout/RFirefox/inst/javascript/Rhelpers.js"> </script>
+
     <script type="text/R">
       library(RFirefox)
       #library(SpiderMonkey)
       library(firepaint)
       
-      #canvEl = getElementById(ScriptCon, "canv")
-      #ctx = call_JS_Method(ScriptCon, canvEl, "getContext", list("2d"))
-
-      initscript = "canv = document.getElementById('canv');ctx = canv.getContext('2d');"
+     initscript = "canv = document.getElementById('canv');ctx = canv.getContext('2d');"
       JS_EvaluateScript(ScriptCon, NULL, initscript, nchar(initscript), "init", 1, jsVal())
-      
+  
       painter = fPainter2$new(canvas = "canv", ctx = "ctx")
       print(painter)
-      x = runif(10000, 0, 30) * 10
-      y = runif(10000, 0, 30) * 10
-      painter$drawPoint(x,y)
      
+      
+      doPoints = function(dummy = 1)
+{
+      print("in doPaint")
+      x = runif(10000, 0, 60) * 10
+      y = runif(10000, 0, 60) * 10
+      print(system.time(painter$drawPoint(x,y, NULL)))
+      
+ }     
+
+      
+      doCircles = function(dummy = 1)
+{
+      print("in doPaint")
+      x = runif(10000, 0, 60) * 10
+      y = runif(10000, 0, 60) * 10
+      print(system.time(painter$drawCircle(x,y,2, NULL)))
+      
+ }   
       </script>
   </head>
   <body>
-    <canvas id="canv"></canvas>
+    <canvas id="canv" width="600" height="600"></canvas>
+    <button type="button" onclick = "jsREventHandler('doPoints');">Draw Points </button>
+    <button type="button" onclick = "jsREventHandler('doCircles');">Draw Circles </button>
   </body>
 </html>
-

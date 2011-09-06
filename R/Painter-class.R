@@ -132,7 +132,27 @@ fPainter = setRefClass("firePainter",
                         1L, ret)
       
       TRUE                  
-    }),
+    },
+  drawCircle = function(x,y, r, stroke)
+    {
+      script = paste(
+        paste(.self$ctx, ".beginPath();", sep=""),
+        paste(.self$ctx, ".moveTo(" , x , " , " , y , ");\n",
+              .self$ctx, ".arc(", x , " , " , y , " , ", r , " , " ,  0, " , " ,  2*pi, " , ", 1 , ");", sep=""),
+        paste(.self$ctx, ".fill();", sep = ""),
+        collapse="\n")
+
+      ret = jsVal()
+      JS_EvaluateScript(ScriptCon,
+                        JS_GetGlobalObject(ScriptCon),
+                        script,
+                        nchar(script),
+                        "drawPoints",
+                        1L, ret)
+      
+      TRUE                  
+    }
+    ),
   contains = "Painter")
                        
 fPainter3 = setRefClass("firePainter3",

@@ -214,5 +214,5 @@ fPainter3 = setRefClass("firePainter3",
       .Call("R_DrawCircles", as.numeric(x), as.numeric(y),as.numeric(r), hexstroke, ScriptCon, change, .self$ctx)
       TRUE
     }),
-  contains = "firePainter")
+  contains = "Painter")
                        

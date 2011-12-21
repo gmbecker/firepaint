@@ -4,20 +4,21 @@ fView = setRefClass("fireView",
               layer = function(value) {
                 if( !missing( value ) )
                   {
-                    .layer = value
+                    .layer <<- value
                     #this will destroy all existing contexts every time a new root layer is assigned to the View (which I think should not be happening very often)
-                    .self$cleanupViewLayers()
+                    if(length(.self$viewLayers))
+                      .self$CleanupViewLayers(.self$viewLayers[[1]])
                     .self$SetupViewLayers()
                   }
                 else
-                  self$.layer
+                  .layer
               },
 
               .viewLayers = "list",
               viewLayers = function(value)
               {
                 if(!missing(value))
-                  .viewLayers = value
+                  .viewLayers <<- value
                 else
                   .viewLayers
               },
@@ -42,21 +43,22 @@ fView = setRefClass("fireView",
               }
                 ),
             methods = list(
-              SetupViewLayers = function(width, height, zindex)
+              SetupViewLayers = function()
               {
-                layer = self$.layer
+                layer = .self$.layer
                 if(is.null(layer))
                   stop("Unable to setup ViewLayers with no root Layer present.")
                 else
                   {
                     if(length(.self$viewLayers))
-                      .self$CleanupViewLayer(.self$viewLayers[[1]])
-                    .self$CreateViewLayers(layer)
+                      .self$CleanupViewLayers(.self$viewLayers[[1]])
+                    .self$CreateViewLayers(layer, NULL, zindex=1)
+                    .self$SetContextTransforms()
 
                   }
               },
               #this should clean up the passed in ViewLayer, including all of it's children
-              CleanupViewLayer = function(viewLayer)
+              CleanupViewLayers = function(viewLayer)
                 #destroy all contexts and all divs except the parent. Set parent div's innerHTML to empty string
               {
                 #this may leak memory by not destroying the canvas elements properly, but I think it should.
@@ -81,25 +83,30 @@ fView = setRefClass("fireView",
                                         #geometry x1, y1
                                         #         x2, y2
                       {
-                        devspace = {cbind(layer$geometry, 1) %*% .self$transform}[1:2,]
+                        tmp = cbind(layer$geometry, 1)
+                        #print(tmp)
+                        #print(.self$transform)
+                        devspace = {tmp %*% .self$transform}[1:2,]
                         dims = abs( c( devspace[1,1] - devspace[1, 2] , devspace[2, 1] - devspace[2, 2]) )
-                        position = c (min( devspace[ 1 , ] ) , max( dims[ 2 , ] ) ) 
+                        position = c (min( devspace[ 1 , ] ) , max( devspace[ 2 , ] ) ) 
                    
                       } else if (!is.null(layer$layout)) {
                         stop("Layouts not supported yet")
                       } else {
                                         # assume simple stacking
-                        if(!is.null(parent))
+                        if(length(parent))
                           {
                             position = parent$position
                             dims = parent$dim
                           } else {
-                            stop("Root Layer must have geometry specified")
+                            return(zindex)
                           }
                         
                       }
-                    newVL = .self$ViewLayerFactory(layer = layer, parent = parent, dim = dims, position = position, zindex, view = .self)
+                    newVL = .self$ViewLayerFactory(layer = layer, parent = parent, dim = dims, position = position, zindex)
                     .self$viewLayers = c(.self$viewLayers, newVL)
+                    if(length(.self$viewLayers) == 1 && class(.self$viewLayers) != "list")
+                       .viewLayers <<- list(.self$viewLayers)
                     zindex = zindex + 1
                     for(i in seq(along = layer$children))
                       {
@@ -111,7 +118,7 @@ fView = setRefClass("fireView",
                   ,
               ViewLayerFactory  = function(layer, parent, dim, position, zindex)
               {
-                fViewLayer$new(layer = layer, parent = parent, dim= dim, position = position, zindex = zindex )
+                fViewLayer$new(layer = layer, parent = parent, dim= dim, position = position, zindex = zindex, view = .self)
               },
               SetContextTransforms = function()
               {
@@ -120,9 +127,13 @@ fView = setRefClass("fireView",
                   args = c(1, 0, 0, 1, 0, 0)
                 else
                   args = c(tform[1:2, 1], tform[1:2, 2], tform[1:2, 3])
-                for(i in seq(along = .self$viewLayers))
+                vls = .self$viewLayers
+                
+                for(i in seq(along = vls))
                     {
-                      call_JS_Method(ScriptCon, .self$viewLayers[[i]]$nativeResource[[1]], "setTransform", args, addRoot = FALSE)
+                      
+                      print(vls[[1]]$nativeResource)     
+                      call_JS_Method(ScriptCon, vls[[i]]$nativeResource[[1]], "setTransform", args, addRoot = FALSE)
                     }
                 return(TRUE)
               },
@@ -136,22 +147,21 @@ fView = setRefClass("fireView",
               paint = function()
               {
                 vls = .self$viewLayers
+                print(vls) 
                 for (i in seq(along = vls))
                   {
-
+                    #print(vls[[i]]$layer$handlers)
+                    print(vls[[i]]$nativeResource)
+                    
                     p = vls[[i]]$createPainter()
                     vls[[i]]$layer$paint(p)
 
                   }
-                     
+                
 
               }
-              
-              
-              
-               
-
-            ))
+            ),
+  contains = "View")
 
   
 

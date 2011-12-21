@@ -33,8 +33,7 @@ eventMap = list(
   
 
 fLayer = setRefClass("fireLayer",
-  fields = list(zaxis = "numeric",
-    canvas = "jsvalRef",
+  fields = list(
     handlers = function(value)
     {
       if(!missing(value))
@@ -48,6 +47,94 @@ fLayer = setRefClass("fireLayer",
                        print(paste("Attaching", nm, "event handler."))
                      }
                  }, map = eventMap)
+        }
+    },
+    .children = "list",
+    children = function(value)
+    {
+      if(!missing(value))
+        .children <<- value
+      else
+        .children
+      },
+    .parent = "ANY",
+    parent = function(value)
+    {
+      if(!missing(value))
+        {
+          if(class(value) == "Layer" || is.null(value))
+            .parent <<- value
+          else
+            stop("Parent of a Layer must be a Layer or NULL")
+        } else {
+          .parent
+        }
+      },
+    geometryBounds = function(value)
+    {
+      if(!missing(value))
+        .geometryBounds <<- value
+      else
+        .geometryBounds
+    },
+    .layout = "Layout",
+    layout = function(value)
+    {
+      if(!missing(value))
+        .layout <<- value
+      else
+        .layout
+    },
+    .isCached = "logical",
+    isCached = function(value)
+    {
+      if(!missing(value))
+        .isCached <<- value
+      else
+        .isCached
+    },
+    .isClipped = "logical",
+    isClipped = function(value)
+    {
+      if(!missing(value))
+        .isClipped <<- value
+      else
+        .isClipped
+    },
+    .hasFocus = "logical",
+    hasFocus = function(value)
+    {
+      if(!missing(value))
+        .hasFocus <<- value
+      else
+        .hasFocus
+    },
+    .limits = "matrix",
+    limits = function(value)
+    {
+      if(!missing(value))
+        .limits <<- value
+      else
+        .limits
+    },
+    .handlers = "LayerHandlers",
+    handlers = function(value)
+    {
+      if(!missing(value))
+        .handlers <<- value
+      else
+        .handlers
+      }
+   ),
+  methods = list(
+    paint = function(p)
+    {
+      if(!is.null(.handlers@paint))
+        .handlers@paint(p)
+      else
+        {
+          warning("No paint event handler specified for this method")
+          NULL
         }
     }),
   contains = "Layer")
